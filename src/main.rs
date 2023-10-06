@@ -80,11 +80,9 @@ async fn recursive_function_calling(
     let mut text = message.content.clone().unwrap_or("".to_string());
 
     if message.clone().function_call.is_some() {
-        println!(
-            "function calling: {:#?}",
-            message.clone().function_call.unwrap().name
-        );
-        let result = match &*message.clone().function_call.unwrap().name {
+        let function_name = message.clone().function_call.unwrap().name;
+        println!("function calling: {:#?}", function_name);
+        let result = match &*function_name {
             "get_html_context" => {
                 let url = serde_json::from_str::<serde_json::Value>(
                     &message.clone().function_call.unwrap().arguments,
@@ -103,9 +101,9 @@ async fn recursive_function_calling(
             functions,
             vec![
                 vec![ChatCompletionRequestMessage {
-                    role: Role::Assistant,
+                    role: Role::Function,
                     content: Some(result),
-                    name: None,
+                    name: Some(function_name),
                     function_call: None,
                 }],
                 messages,
